@@ -1,0 +1,26 @@
+name: Delete Preview Deployment
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  delete-deployment:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: Nortezh/nortezh-action@v1.0.0
+        with:
+          action: deployment.delete
+          project: example
+          location: nortezh-stag
+          name: preview-api-${{ github.event.pull_request.number }}
+        env:
+          SA_AUTH_EMAIL: ${{ secrets.SA_AUTH_EMAIL }}
+          SA_AUTH_KEY: ${{ secrets.SA_AUTH_KEY }}

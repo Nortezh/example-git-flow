@@ -1,9 +1,8 @@
-name: Staging deploy
+name: Revision Preview Deployment
 
 on:
   pull_request:
     types:
-      - opened
       - synchronize
     branches:
       - main
@@ -19,6 +18,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      pull-requests: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -50,13 +50,20 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
       - uses: Nortezh/nortezh-action@v1.0.0
+        id: deploy
         with:
-          action: deployment.clone
+          action: deployment.create-revision
           project: example
           location: nortezh-stag
-          name: stag-api
+          name: preview-api-${{ github.event.pull_request.number }}
           image: ${{ steps.meta.outputs.tags }}
-          new_name: preview-api-${{ github.event.pull_request.number }}
+          port: 80
+          type: WebService
         env:
           SA_AUTH_EMAIL: ${{ secrets.SA_AUTH_EMAIL }}
           SA_AUTH_KEY: ${{ secrets.SA_AUTH_KEY }}
+      - name: Comment Pull Request
+        uses: thollander/actions-comment-pull-request@v2.5.0
+        with:
+          message: |
+            Preview URL: ${{ steps.deploy.outputs.public_url }}
