@@ -59,3 +59,8 @@ jobs:
         env:
           SA_AUTH_EMAIL: ${{ secrets.SA_AUTH_EMAIL }}
           SA_AUTH_KEY: ${{ secrets.SA_AUTH_KEY }}
+      - name: Comment Pull Request
+        uses: thollander/actions-comment-pull-request@v2.5.0
+        with:
+          message: |
+            Preview URL: ${{ steps.deploy.outputs.public_url }}
